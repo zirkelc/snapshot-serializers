@@ -85,7 +85,7 @@ test('user data without sensitive info', () => {
 Creates a serializer that replaces specific property values with placeholders.
 
 - `options.property`: The name of the property to replace
-- `options.placeholder`: (Optional) Custom placeholder text. Defaults to '[SNAPSHOT_PLACEHOLDER]'
+- `options.placeholder`: (Optional) Custom placeholder text. Defaults to `[SNAPSHOT_PLACEHOLDER]`
 
 ### removeProperty(options)
 
