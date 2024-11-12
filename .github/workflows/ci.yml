@@ -10,8 +10,9 @@ concurrency:
 
 permissions:
   checks: write
-  contents: write
-  pull-requests: write
+  id-token: write # needed for npm publish with provenance
+  contents: write # needed for github release
+  pull-requests: write # needed for coverage comment
 
 jobs:
   lint:
