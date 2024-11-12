@@ -97,6 +97,11 @@ Creates a serializer that removes specific properties from the snapshot.
 
 - `options.property`: The name of the property to remove
 
+## Todo
+
+- Specify nested properties: `removeProperty({ property: 'user.password' })` should remove `password` from `user.password`
+- Typesafe property keys: `removeProperty<UserModel>({ property: 'password' })` should suggest `password` as a property of `UserModel`
+
 ## License
 
 MIT
