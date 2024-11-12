@@ -1,3 +1,7 @@
+[![CI](https://github.com/zirkelc/snapshot-serializers/actions/workflows/ci.yml/badge.svg)](https://github.com/zirkelc/snapshot-serializers/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/snapshot-serializers)](https://www.npmjs.com/package/snapshot-serializers)
+[![npm](https://img.shields.io/npm/dt/snapshot-serializers)](https://www.npmjs.com/package/snapshot-serializers)
+
 # Snapshot Serializers
 
 A collection of snapshot serializers for Jest and Vitest to help manage dynamic values in your test snapshots.
