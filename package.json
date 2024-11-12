@@ -19,9 +19,18 @@
     "lint:fix": "biome check . --write",
     "prepare": "husky"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zirkelc/snapshot-serializers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zirkelc/snapshot-serializers/issues"
+  },
+  "homepage": "https://github.com/zirkelc/snapshot-serializers#readme",
+  "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@total-typescript/tsconfig": "^1.0.4",
