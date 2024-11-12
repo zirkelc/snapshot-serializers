@@ -1,78 +1,94 @@
-# TypeScript Single Package Project Template
+# Snapshot Serializers
 
-This template provides an opinionated setup for a single package TypeScript project.
+A collection of snapshot serializers for Jest and Vitest to help manage dynamic values in your test snapshots.
 
-## 🚀 Features
+## Installation
 
-- 📦 [PNPM](https://pnpm.io/) for efficient package management
-- 🧹 [Biome](https://biomejs.dev/) for linting and formatting
-- 🧪 [Vitest](https://vitest.dev/) for fast, modern testing
-- 🏗️ [tsup](https://tsup.egoist.dev/) for TypeScript building and bundling
-- 🏃‍♂️ [tsx](https://tsx.is/) for running TypeScript files
-- 🐶 [Husky](https://github.com/typicode/husky) for Git hooks
-- 🔄 [GitHub Actions](.github/workflows/ci.yml) for continuous integration
-- 🐞 [VSCode](.vscode/) debug configuration and editor settings
-- 🔧 [@total-typescript/tsconfig](https://github.com/total-typescript/tsconfig) for TypeScript configuration
+```bash
+npm install snapshot-serializers
+```
 
-## 📋 Details
+## Usage
 
-### Package
+### Replace Properties
 
-The [`package.json`](package.json) is configured as ESM (`"type": "module"`), but supports dual publishing with both ESM and CJS module formats.
+Replace dynamic properties like auto-generated IDs or timestamps with placeholders in your snapshots:
 
-### Biome
+```bash
+npm install snapshot-serializers
+```
 
-[`biome.jsonc`](biome.jsonc) contains the default [Biome configuration](https://biomejs.dev/reference/configuration/) with minimal formatting adjustments. It uses the formatter settings from the [`.editorconfig`](.editorconfig) file.
+```typescript
+import { replaceProperty } from 'snapshot-serializers';
+import { removeProperty } from 'snapshot-serializers';
 
-### Vitest
+// Replace IDs with a default placeholder '[SNAPSHOT_PLACEHOLDER]'
+expect.addSnapshotSerializer(replaceProperty({ property: 'id' }));
 
-An empty Vitest config is provided in [`vitest.config.ts`](vitest.config.ts).
+// Replace timestamps with a custom placeholder
+expect.addSnapshotSerializer(
+  replaceProperty({
+    property: 'createdAt',
+    placeholder: '[TIMESTAMP]'
+  })
+);
 
-### Build and Run
+test('user data snapshot', () => {
+  const user = {
+    id: '123e4567-e89b-12d3-a456-426614174000',
+    name: 'John Doe',
+    createdAt: '2024-03-20T12:00:00Z'
+  };
+  expect(user).toMatchInlineSnapshot(`
+    {
+      "id": "[SNAPSHOT_PLACEHOLDER]",
+      "name": "John Doe",
+      "createdAt": "[TIMESTAMP]"
+    }
+  `);
+});
+```
 
-- `tsup` builds `./src/index.ts`, outputting both ESM and CJS formats to the `dist` folder.
-- `tsx` compiles and runs TypeScript files on-the-fly.
+### Remove Properties
 
-### Git Hooks
+Remove properties that shouldn't be included in snapshots:
 
-[Husky](https://github.com/typicode/husky) runs the [.husky/pre-commit](.husky/pre-commit) hook to lint staged files.
+```typescript
+import { removeProperty } from 'snapshot-serializers';
 
-### Continuous Integration
+// Remove sensitive or unnecessary data from snapshots
+expect.addSnapshotSerializer(removeProperty({ property: 'password' }));
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) defines a GitHub Actions workflow to run linting and tests on commits and pull requests.
+test('user data without sensitive info', () => {
+  const user = {
+    id: '123',
+    email: 'john@example.com',
+    password: 'secret123'
+  };
+  expect(user).toMatchInlineSnapshot(`
+    {
+      "id": "123",
+      "email": "john@example.com"
+    }
+  `);
+});
+```
 
-### VSCode Integration
+## API
 
-#### Debugging
+### replaceProperty(options)
 
-[`.vscode/launch.json`](.vscode/launch.json) provides VSCode launch configurations:
-- `Debug (tsx)`: Run and debug TypeScript files
-- `Test (vitest)`: Debug tests
+Creates a serializer that replaces specific property values with placeholders.
 
-It uses the [JavaScript Debug Terminal](https://code.visualstudio.com/docs/nodejs/nodejs-debugging) to run and debug.
+- `options.property`: The name of the property to replace
+- `options.placeholder`: (Optional) Custom placeholder text. Defaults to '[SNAPSHOT_PLACEHOLDER]'
 
-#### Editor Settings
+### removeProperty(options)
 
-[`.vscode/settings.json`](.vscode/settings.json) configures Biome as the formatter and enables format-on-save.
+Creates a serializer that removes specific properties from the snapshot.
 
-### EditorConfig
+- `options.property`: The name of the property to remove
 
-[`.editorconfig`](.editorconfig) ensures consistent coding styles across different editors and IDEs:
+## License
 
-- Uses spaces for indentation (2 spaces)
-- Sets UTF-8 charset
-- Ensures LF line endings
-- Trims trailing whitespace (except in Markdown files)
-- Inserts a final newline in files
-
-This configuration complements Biome and helps maintain a consistent code style throughout the project.
-
-## 🚀 Getting Started
-
-1. Create a new repository [using this template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
-2. Run `pnpm install` to install dependencies
-3. Start coding in the `src` directory
-4. Run tests with `pnpm test`
-5. Build your project with `pnpm build`
-
-Happy coding! 🎉
+MIT
