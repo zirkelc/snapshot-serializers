@@ -28,7 +28,6 @@ Replace dynamic properties like auto-generated IDs or timestamps with placeholde
 
 ```typescript
 import { replaceProperty } from 'snapshot-serializers';
-import { removeProperty } from 'snapshot-serializers';
 
 // Replace IDs with a default placeholder '[SNAPSHOT_PLACEHOLDER]'
 expect.addSnapshotSerializer(replaceProperty({ property: 'id' }));
