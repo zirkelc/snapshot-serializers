@@ -10,13 +10,17 @@ npm install snapshot-serializers
 
 ## Usage
 
+Snapshot serializers must be added by using `expect.addSnapshotSerializer` API:
+
+```ts
+import { replaceProperty } from 'snapshot-serializers';
+
+expect.addSnapshotSerializer(replaceProperty({ property: 'foo' }));
+```
+
 ### Replace Properties
 
 Replace dynamic properties like auto-generated IDs or timestamps with placeholders in your snapshots:
-
-```bash
-npm install snapshot-serializers
-```
 
 ```typescript
 import { replaceProperty } from 'snapshot-serializers';
