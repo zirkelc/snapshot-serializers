@@ -1,105 +1,120 @@
 import { describe, expect, test } from 'vitest';
 import { removeProperty, replaceProperty } from '../src/snapshot.js';
 
-expect.addSnapshotSerializer(replaceProperty({ property: 'id' }));
+type User = {
+  id: string;
+  name: string;
+  password?: string;
+  createdAt: string;
+};
+
+type UserList = {
+  users: {
+    active: User[];
+  };
+};
+
+expect.addSnapshotSerializer(replaceProperty<UserList>({ property: 'id' }));
+
 expect.addSnapshotSerializer(
-  replaceProperty({ property: 'createdAt', placeholder: '[TIMESTAMP]' }),
+  replaceProperty<UserList>({
+    property: 'createdAt',
+    placeholder: '[TIMESTAMP]',
+  }),
 );
-expect.addSnapshotSerializer(removeProperty({ property: 'password' }));
 
-test('should replace id with default placeholder', () => {
-  expect({
-    id: '123e4567-e89b-12d3-a456-426614174000',
-    name: 'John Doe',
-  }).toMatchInlineSnapshot(`
-    {
-      "id": "[SNAPSHOT_PLACEHOLDER]",
-      "name": "John Doe",
-    }
-  `);
-});
+expect.addSnapshotSerializer(
+  removeProperty<User>({
+    property: 'password',
+  }),
+);
 
-test('should replace timestamp with custom placeholder', () => {
-  expect({
+describe('replaceProperty', () => {
+  const user: User = {
     id: '123e4567-e89b-12d3-a456-426614174000',
     name: 'John Doe',
     createdAt: '2024-03-20T12:00:00Z',
-  }).toMatchInlineSnapshot(`
+  };
+
+  const userList: UserList = {
+    users: {
+      active: [user, user],
+    },
+  };
+  test('should replace property with placeholder', () => {
+    expect(user).toMatchInlineSnapshot(`
     {
       "createdAt": "[TIMESTAMP]",
       "id": "[SNAPSHOT_PLACEHOLDER]",
       "name": "John Doe",
     }
   `);
-});
+  });
 
-test('should replace deeply nested properties', () => {
-  expect({
-    users: {
-      active: {
-        primary: {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          name: 'John Doe',
-          createdAt: '2024-03-20T12:00:00Z',
-        },
-      },
-    },
-  }).toMatchInlineSnapshot(`
-    {
-      "users": {
-        "active": {
-          "primary": {
-            "createdAt": "[TIMESTAMP]",
-            "id": "[SNAPSHOT_PLACEHOLDER]",
-            "name": "John Doe",
-          },
-        },
-      },
-    }
-  `);
-
-  expect([
-    {
-      users: [
-        {
-          active: [
+  test('should replace deeply nested properties', () => {
+    expect(userList).toMatchInlineSnapshot(`
+      {
+        "users": {
+          "active": [
             {
-              id: '123e4567-e89b-12d3-a456-426614174000',
-              name: 'John Doe',
-              createdAt: '2024-03-20T12:00:00Z',
+              "createdAt": "[TIMESTAMP]",
+              "id": "[SNAPSHOT_PLACEHOLDER]",
+              "name": "John Doe",
+            },
+            {
+              "createdAt": "[TIMESTAMP]",
+              "id": "[SNAPSHOT_PLACEHOLDER]",
+              "name": "John Doe",
             },
           ],
         },
-      ],
-    },
-  ]).toMatchInlineSnapshot(`
-    [
-      {
-        "users": [
-          {
-            "active": [
-              {
-                "createdAt": "[TIMESTAMP]",
-                "id": "[SNAPSHOT_PLACEHOLDER]",
-                "name": "John Doe",
-              },
-            ],
-          },
-        ],
-      },
-    ]
-  `);
+      }
+    `);
+  });
 });
 
-test('should remove sensitive properties', () => {
-  expect({
+describe('removeProperty', () => {
+  const user: User = {
     id: '123',
-    email: 'john@example.com',
+    name: 'John Doe',
+    createdAt: '2024-03-20T12:00:00Z',
     password: 'secret123',
-  }).toMatchInlineSnapshot(`
+  };
+
+  const userList: UserList = {
+    users: {
+      active: [user, user],
+    },
+  };
+
+  test('should remove property', () => {
+    expect(user).toMatchInlineSnapshot(`
     {
-      "email": "john@example.com",
+      "createdAt": "[TIMESTAMP]",
       "id": "[SNAPSHOT_PLACEHOLDER]",
+      "name": "John Doe",
     }
   `);
+  });
+
+  test('should remove deeply nested property', () => {
+    expect(userList).toMatchInlineSnapshot(`
+      {
+        "users": {
+          "active": [
+            {
+              "createdAt": "[TIMESTAMP]",
+              "id": "[SNAPSHOT_PLACEHOLDER]",
+              "name": "John Doe",
+            },
+            {
+              "createdAt": "[TIMESTAMP]",
+              "id": "[SNAPSHOT_PLACEHOLDER]",
+              "name": "John Doe",
+            },
+          ],
+        },
+      }
+    `);
+  });
 });
