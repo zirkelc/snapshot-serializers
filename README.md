@@ -81,25 +81,44 @@ test('user data without sensitive info', () => {
 });
 ```
 
+### Type Safety
+
+Provide a type argument to the `replaceProperty` and `removeProperty` functions to get type safety for your properties:
+
+```typescript
+import { replaceProperty, removeProperty } from 'snapshot-serializers';
+
+type User = {
+  id: string;
+  name: string;
+  createdAt: string;
+};
+
+expect.addSnapshotSerializer(
+  // type of property is "id" | "name" | "createdAt"
+  replaceProperty<User>({ property: 'id' })
+);
+
+expect.addSnapshotSerializer(
+  // "invalid" is not assignable to type '"id" | "name" | "createdAt"
+  removeProperty<User>({ property: 'invalid' })
+);
+```
+
 ## API
 
-### `replaceProperty(options)`
+### `replaceProperty<T>(options)`
 
 Creates a serializer that replaces specific property values with placeholders.
 
 - `options.property`: The name of the property to replace
 - `options.placeholder`: (Optional) Custom placeholder text. Defaults to `[SNAPSHOT_PLACEHOLDER]`
 
-### `removeProperty(options)`
+### `removeProperty<T>(options)`
 
 Creates a serializer that removes specific properties from the snapshot.
 
 - `options.property`: The name of the property to remove
-
-## Todo
-
-- Specify nested properties: `removeProperty({ property: 'user.password' })` should remove `password` from `user.password`
-- Typesafe property keys: `removeProperty<UserModel>({ property: 'password' })` should suggest `password` as a property of `UserModel`
 
 ## License
 
