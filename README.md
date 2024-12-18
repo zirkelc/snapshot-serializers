@@ -29,14 +29,22 @@ Replace dynamic properties like auto-generated IDs or timestamps with placeholde
 ```typescript
 import { replaceProperty } from 'snapshot-serializers';
 
-// Replace IDs with a default placeholder '[SNAPSHOT_PLACEHOLDER]'
+// Replace single property with default placeholder '[SNAPSHOT_PLACEHOLDER]'
 expect.addSnapshotSerializer(replaceProperty({ property: 'id' }));
 
-// Replace timestamps with a custom placeholder
+// Replace multiple properties with custom placeholder
 expect.addSnapshotSerializer(
   replaceProperty({
-    property: 'createdAt',
+    property: ['createdAt', 'updatedAt'],
     placeholder: '[TIMESTAMP]'
+  })
+);
+
+// Replace properties matching a pattern
+expect.addSnapshotSerializer(
+  replaceProperty({
+    property: /^date/,
+    placeholder: '[DATE]'
   })
 );
 
@@ -44,13 +52,19 @@ test('user data snapshot', () => {
   const user = {
     id: '123e4567-e89b-12d3-a456-426614174000',
     name: 'John Doe',
-    createdAt: '2024-03-20T12:00:00Z'
+    createdAt: '2024-03-20T12:00:00Z',
+    updatedAt: '2024-03-21T15:30:00Z',
+    dateJoined: '2024-03-20',
+    dateLastLogin: '2024-03-21'
   };
   expect(user).toMatchInlineSnapshot(`
     {
       "id": "[SNAPSHOT_PLACEHOLDER]",
       "name": "John Doe",
-      "createdAt": "[TIMESTAMP]"
+      "createdAt": "[TIMESTAMP]",
+      "updatedAt": "[TIMESTAMP]",
+      "dateJoined": "[DATE]",
+      "dateLastLogin": "[DATE]"
     }
   `);
 });
@@ -63,14 +77,27 @@ Remove properties that shouldn't be included in snapshots:
 ```typescript
 import { removeProperty } from 'snapshot-serializers';
 
-// Remove sensitive or unnecessary data from snapshots
+// Remove single property
 expect.addSnapshotSerializer(removeProperty({ property: 'password' }));
+
+// Remove multiple properties
+expect.addSnapshotSerializer(
+  removeProperty({ property: ['password', 'secretKey', 'token'] })
+);
+
+// Remove properties matching a pattern
+expect.addSnapshotSerializer(
+  removeProperty({ property: /^secret/ })
+);
 
 test('user data without sensitive info', () => {
   const user = {
     id: '123',
     email: 'john@example.com',
-    password: 'secret123'
+    password: 'secret123',
+    secretKey: 'abc123',
+    secretToken: 'xyz789',
+    token: 'jwt-token'
   };
   expect(user).toMatchInlineSnapshot(`
     {
@@ -111,14 +138,20 @@ expect.addSnapshotSerializer(
 
 Creates a serializer that replaces specific property values with placeholders.
 
-- `options.property`: The name of the property to replace
+- `options.property`: The property to replace. Can be:
+  - A single property name
+  - An array of property names
+  - A RegExp pattern to match multiple properties
 - `options.placeholder`: (Optional) Custom placeholder text. Defaults to `[SNAPSHOT_PLACEHOLDER]`
 
 ### `removeProperty<T>(options)`
 
 Creates a serializer that removes specific properties from the snapshot.
 
-- `options.property`: The name of the property to remove
+- `options.property`: The property to remove. Can be:
+  - A single property name
+  - An array of property names
+  - A RegExp pattern to match multiple properties
 
 ## License
 
